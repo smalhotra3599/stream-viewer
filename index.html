@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Multiview</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div id="app">
+    <header class="toolbar" id="toolbar">
+      <div class="toolbar-group">
+        <span class="toolbar-label">Streams</span>
+        <div class="count-buttons" id="count-buttons">
+          <button type="button" data-count="2">2</button>
+          <button type="button" data-count="4">4</button>
+          <button type="button" data-count="6">6</button>
+          <button type="button" data-count="8">8</button>
+          <button type="button" data-count="9">9</button>
+        </div>
+        <button type="button" id="add-slot-btn" title="Add one more slot">+ Slot</button>
+        <button type="button" id="toggle-setup-btn" title="Show/hide the stream URL list">▾ Hide URLs</button>
+      </div>
+
+      <div class="toolbar-group">
+        <span class="toolbar-label">Preset</span>
+        <select id="preset-select">
+          <option value="">— Load a preset —</option>
+        </select>
+        <input type="text" id="preset-name" placeholder="Preset name" />
+        <button type="button" id="save-preset-btn">Save</button>
+        <button type="button" id="delete-preset-btn">Delete</button>
+      </div>
+
+      <div class="toolbar-group toolbar-group-right">
+        <span class="hint">Click a tile for audio · F fullscreen · 1-9 focus tile</span>
+        <button type="button" id="fullscreen-btn">⛶ Full Screen</button>
+      </div>
+    </header>
+
+    <section id="setup-panel"></section>
+
+    <main id="grid-container"></main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.17/dist/hls.min.js"></script>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
