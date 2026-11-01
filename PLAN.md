@@ -1,5 +1,10 @@
 # Multiview Stream Grid — Plan
 
+> This is the original planning doc, kept as a historical record of the
+> design decisions. For how the app actually behaves today, see
+> **README.md** — a couple of details below (notably the grid algorithm)
+> changed during implementation.
+
 ## Goal
 A full-screen, zero-waste-space grid video player for watching multiple live streams
 at once (NFL Sundays being the main use case). Works on any screen size — ultrawide
@@ -14,15 +19,22 @@ monitor, regular monitor, or a regular monitor mirrored/extended to a TV via HDM
 
 ## Core problems to solve (from investigating RoxieStreams' multiview)
 1. **Real grid layout, not a stacked column.** Given N tiles and the current
-   viewport size, compute the (rows × cols) combination that maximizes total
-   video area while respecting each tile's aspect ratio (~16:9). This is the
-   same "tile view" algorithm video-conferencing apps (Zoom/Jitsi/Meet) use.
-   Recompute on every resize/fullscreen/orientation change — so it reflows
-   correctly whether it's a 32:9 ultrawide or a 16:9 TV.
+   viewport size, compute the (rows × cols) combination that best fills the
+   screen. ~~Originally: maximize total tile area while keeping each tile at
+   exactly 16:9 (the video-conferencing "tile view" approach) — but that
+   still leaves letterboxing whenever rows of aspect-locked tiles don't
+   reach the container's full height.~~ **Revised:** full-bleed instead —
+   every row's tiles stretch to fill the row's width, rows stack to fill the
+   full height, and the column count is chosen to minimize how far a full
+   row's tile shape is from 16:9 (minimizing `object-fit: cover` cropping).
+   Zero leftover space, some cropping, instead of some leftover space, zero
+   cropping. Recomputed on every resize/fullscreen/orientation change — so it
+   reflows correctly whether it's a 32:9 ultrawide or a 16:9 TV.
 2. **Zero-chrome full-screen mode.** Use the Fullscreen API on the grid
    container. In full-screen, no header, no nav, no controls bar — just tiles,
-   edge to edge, with a thin reveal-on-hover control strip per tile (mute/swap/
-   remove) that auto-hides.
+   edge to edge, with a reveal-on-hover audio-focus toggle and label per tile
+   that auto-hides. (Reordering is drag-and-drop; removing a stream is done
+   from the slot list, not a per-tile button.)
 3. **Windowed/setup mode.** Outside full-screen, show a minimal header: stream
    count selector, "Add stream" / paste-URL inputs per slot, and a "Go
    Full Screen" button. This is where you configure what's playing before
@@ -40,9 +52,11 @@ monitor, regular monitor, or a regular monitor mirrored/extended to a TV via HDM
   `<video>` tags (covers Chrome/Edge/Firefox; Safari plays HLS natively).
   Iframe-embed sources are also supported as a tile type for sources that only
   give you an embed, not a raw stream link.
-- **CSS Grid** for layout, with `grid-template-columns`/`rows` set
-  dynamically via JS from the tiling algorithm — not hardcoded per-count rules
-  (this is exactly the bug RoxieStreams has).
+- Tile positions computed dynamically via JS from the tiling algorithm — not
+  hardcoded per-count rules (this is exactly the bug RoxieStreams has).
+  ~~Originally planned as CSS Grid~~ — ended up as absolute-positioned tiles
+  (`left`/`top`/`width`/`height` in px), since the full-bleed layout needs
+  per-row tile widths that a single `grid-template-columns` can't express.
 - **No backend required initially** — everything runs client-side; stream URLs
   and layout are saved to `localStorage` so your setup persists between
   sessions.
